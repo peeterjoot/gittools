@@ -1,0 +1,72 @@
+#!/usr/bin/perl
+
+#-----------------------------------------------------------------------------
+# POD Format Documentation.  Read "perldoc perlpod" for an example.
+# When done, check syntax with "podchecker".
+
+=head1 NAME
+
+lsbranch - list files in a git branch
+
+=head1 SYNOPSIS
+
+lsbranch --branch n [--help]
+
+=head1 DESCRIPTION
+
+List the files that are in a git branch relative to master
+
+=head1 SUPPORTED PLATFORMS
+
+ Unix (Linux verified)
+
+=head1 SUPPORT
+
+ Send email to peeter.joot@lzlabs.com
+
+=head1 AUTHORS
+
+ Peeter Joot
+
+=cut
+
+#-----------------------------------------------------------------------------
+
+use strict ;
+use warnings ;
+use Getopt::Long ;
+use Pod::Usage ;
+
+# Suppress sourcing of users' .bashrc files in invoked shells
+delete $ENV{'ENV'} ;
+delete $ENV{'BASH_ENV'} ;
+
+# Set STDOUT and STDERR to unbuffered
+select STDERR ; $| = 1;
+select STDOUT ; $| = 1;
+
+my ($myName,$usage) = '' ;
+
+($myName = $0) =~ s@.*[/\\]@@ ;
+my $branch ;
+my $master = 'master' ;
+
+GetOptions ( 
+   'branch=s'           => \$branch,
+   'master=s'           => \$master,
+   'help'               => sub { pod2usage(-verbose => 2) ; },
+) or pod2usage(-verbose => 0) ;
+
+# Validate/handle options, and everything else...
+
+if ( !defined $branch )
+{
+   $branch = `git branch | grep '^\*' | sed 's/^..//'` ; chomp $branch ;
+
+   die "$myName: --branch argument must be specfied\n" if ( $branch eq 'master' ) ;
+}
+
+my $baseCommit = `git merge-base $branch $master` ; chomp $baseCommit ;
+
+#system( "echo git diff --name-only $baseCommit $branch" ) ;
+system( "git diff --name-only $baseCommit $branch" ) ;

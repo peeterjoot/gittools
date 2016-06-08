@@ -1,0 +1,100 @@
+#!/usr/bin/perl
+
+#-----------------------------------------------------------------------------
+# POD Format Documentation.  Read "perldoc perlpod" for an example.
+# When done, check syntax with "podchecker".
+
+=head1 NAME
+
+svncountfile - Look for svn author with most recent changes to a file.
+
+=head1 SYNOPSIS
+
+svncountfile [--help] [--all] [--number n] [--password=p] [--debug] --filename f
+
+=head1 DESCRIPTION
+
+Look in 'n' last changes to an svn file 'f' to see who changed it most.
+
+=head1 SUPPORTED PLATFORMS
+
+ Unix (Linux verified)
+
+=head1 SUPPORT
+
+ Send email to peeter.joot@lzlabs.com
+
+=head1 AUTHORS
+
+ Peeter Joot
+
+=cut
+
+#-----------------------------------------------------------------------------
+
+use strict ;
+use warnings ;
+use Getopt::Long ;
+use Pod::Usage ;
+
+# Suppress sourcing of users' .bashrc files in invoked shells
+delete $ENV{'ENV'} ;
+delete $ENV{'BASH_ENV'} ;
+
+# Set STDOUT and STDERR to unbuffered
+select STDERR ; $| = 1;
+select STDOUT ; $| = 1;
+
+my ($myName,$usage) = '' ;
+my $filename ;
+my $number = 5 ;
+my $password ;
+my $debug = 0 ;
+my $all = 0 ;
+
+($myName = $0) =~ s@.*[/\\]@@ ;
+
+GetOptions ( 
+   'all!'               => \$all,
+   'debug!'             => \$debug,
+   'password=s'         => \$password,
+   'number=i'           => \$number,
+   'filename=s'         => \$filename,
+   'help'               => sub { pod2usage(-verbose => 2) ; },
+) or pod2usage(-verbose => 0) ;
+
+die "$myName: -filename not specified\n" unless ( defined $filename ) ;
+
+if ( defined $password )
+{
+   $password = " --password=$password " ;
+}
+
+my %changelog = () ;
+
+open my $fh, "svn log $password --limit $number $filename |" or die ;
+while ( <$fh> ) 
+{
+   chomp ;
+   print "# $_\n" if ( $debug ) ;
+
+   next unless /^(r\d\d\d\d\d)\s..(\S+)/ ;
+
+   my ($commit, $who) = ( $1, $2 ) ;
+
+   $changelog{$who}++ ;
+}
+close $fh or die ;
+
+if ( $all )
+{
+   foreach my $who ( sort keys %changelog )
+   {
+      print "$who $changelog{$who}\n" ;
+   }
+}
+else
+{
+   my $biggest = (sort {$changelog{$b} <=> $changelog{$a}} keys %changelog)[0] ;
+   print "$biggest\n" ;
+}

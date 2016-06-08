@@ -1,0 +1,14 @@
+# https://confluence.lzlabs.com/display/LZHEL/Subversion:+Trunk+only
+
+mkdir build
+cd build
+svn co http://svn.lzlabs.com/svn/lzLabs --depth immediates
+
+
+svn log -v -r 30391
+
+   What changed in a commit.
+
+for i in `cat ../branches/Werror/l` ; do pw=`~/.svnpw` ; echo `svncountfile --pas $pw -f $i` $i ; done
+
+   look for code owners.

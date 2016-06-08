@@ -1,0 +1,38 @@
+#!/bin/bash
+
+: <<=cut
+#-----------------------------------------------------------------------------
+# POD like Format Documentation.  Invoke perldoc ./thisfile to see the documentation.
+# See "perldoc perlpod" for examples.
+# When done, check syntax with "podchecker".  
+
+=head1 NAME
+
+svn_conflict_tuples - grab the list of target,mine,orig,new filenames associated with postponed svn updates
+
+=head1 SYNOPSIS
+
+<command> [<options>]
+
+=head1 DESCRIPTION
+
+It looks like somebody used the perl skeleton without filling in the POD
+documentation for their particular script.  Shame on them!!!
+
+=head1 SUPPORTED PLATFORMS
+
+ All (Linux verified)
+
+=head1 SUPPORT
+
+ Send email to peeter.joot@lzlabs.com
+
+=head1 AUTHORS
+
+ Peeter Joot
+
+=cut
+
+#-----------------------------------------------------------------------------
+
+svn status -u | grep -A3 ^C | sed 's/.* //' 

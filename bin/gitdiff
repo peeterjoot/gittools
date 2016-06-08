@@ -1,0 +1,108 @@
+#!/usr/bin/perl
+
+#-----------------------------------------------------------------------------
+# POD Format Documentation.  Read "perldoc perlpod" for an example.
+# When done, check syntax with "podchecker".
+
+=head1 NAME
+
+gitdiff - grab diffs for the last N changes to a file.
+
+=head1 SYNOPSIS
+
+gitdiff [--help] [--n=N] filename(s)
+
+=head1 DESCRIPTION
+
+=over 4
+
+=item --n N
+
+Defaults to 1.  This is how many versions backwards to diff.
+
+=back
+
+=head1 SUPPORTED PLATFORMS
+
+ Unix (Linux verified)
+
+=head1 SUPPORT
+
+ Send email to peeter.joot@lzlabs.com
+
+=head1 AUTHORS
+
+ Peeter Joot
+
+=cut
+
+#-----------------------------------------------------------------------------
+
+use strict ;
+use warnings ;
+use Getopt::Long ;
+use Pod::Usage ;
+ 
+# Suppress sourcing of users' .bashrc files in invoked shells
+delete $ENV{'ENV'} ;
+delete $ENV{'BASH_ENV'} ;
+
+# Set STDOUT and STDERR to unbuffered
+select STDERR ; $| = 1;
+select STDOUT ; $| = 1;
+
+my ($myName,$usage) = '' ;
+
+($myName = $0) =~ s@.*[/\\]@@ ;
+my $n = 1 ;
+my $verbose = 0 ;
+
+Getopt::Long::Configure( 'pass_through' ) ;
+
+GetOptions ( 
+   'n=i'                => \$n,
+   'verbose!'           => \$verbose,
+   'help'               => sub { pod2usage(-verbose => 2) ; },
+) or pod2usage(-verbose => 0) ;
+
+die "$myName: must specify file(s)\n" unless ( scalar @ARGV ) ;
+
+foreach ( @ARGV )
+{
+   rundiff( $_ ) ;
+}
+
+exit 0 ;
+
+sub rundiff
+{
+   my ($filename) = @_ ;
+
+   my $nplus = $n + 1 ;
+   my @a = `git log -n $nplus $filename | grep ^commit | sed 's/^commit //'` ;
+   chomp @a ;
+#   foreach (@a) 
+#   {
+#      print "a: $_\n" ;
+#   }
+   my $asz = scalar( @a ) ;
+
+   $n = ($asz -1) if ( $asz <= $n ) ;
+
+   for ( my $i = 0 ; $i < $n ; $i++ )
+   {
+      my $prev = $i + 1 ;
+
+      verbose_system( "PAGER=cat git log -n 1 $a[$i] $filename" ) ;
+      verbose_system( "PAGER=cat git diff $a[$prev] $a[$i] -- $filename" ) ;
+   }
+}
+
+sub verbose_system
+{
+   my ($cmd) = @_ ;
+
+   print "# $cmd\n" if ( $verbose ) ;
+
+   system( $cmd ) ;
+}

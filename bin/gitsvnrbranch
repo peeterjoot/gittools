@@ -1,0 +1,76 @@
+#!/usr/bin/perl
+
+#-----------------------------------------------------------------------------
+# POD Format Documentation.  Read "perldoc perlpod" for an example.
+# When done, check syntax with "podchecker".
+
+=head1 NAME
+
+gitsvnrbranch - check out a specific commit
+
+=head1 SYNOPSIS
+
+gitsvnrbranch [--help] [<options>]
+
+=head1 DESCRIPTION
+
+This can be used to check out a known good commit and work from that until ready to dcommit.
+Alternatively, this can be used to check out a specific commit for debug purposes.
+
+Options:
+
+=over 4
+
+=item -r nnnnn
+
+SVN revision number.
+
+=back 
+
+=head1 SUPPORTED PLATFORMS
+
+ Unix (Linux verified)
+
+=head1 SUPPORT
+
+ Send email to peeter.joot@lzlabs.com
+
+=head1 AUTHORS
+
+ Peeter Joot
+
+=cut
+
+#-----------------------------------------------------------------------------
+
+use strict ;
+use warnings ;
+use Getopt::Long ;
+use Pod::Usage ;
+
+# Suppress sourcing of users' .bashrc files in invoked shells
+delete $ENV{'ENV'} ;
+delete $ENV{'BASH_ENV'} ;
+
+# Set STDOUT and STDERR to unbuffered
+select STDERR ; $| = 1;
+select STDOUT ; $| = 1;
+
+my ($myName,$usage) = '' ;
+my $rev ;
+
+($myName = $0) =~ s@.*[/\\]@@ ;
+
+GetOptions ( 
+   'r=d'                => \$rev,
+   'help'               => sub { pod2usage(-verbose => 2) ; },
+) or pod2usage(-verbose => 0) ;
+
+# Validate/handle options, and everything else...
+
+die "$myName: required param '-rev nnnnn' was not specified" unless ( defined $rev ) ;
+
+c=`git svn find-rev r$r` ; chomp $c ;
+
+print "git checkout $c\n" .
+      "git checkout -b r$r\n" ;

@@ -1,0 +1,77 @@
+#!/usr/bin/perl
+
+#-----------------------------------------------------------------------------
+# POD Format Documentation.  Read "perldoc perlpod" for an example.
+# When done, check syntax with "podchecker".
+
+=head1 NAME
+
+gitsvnsquash - run rebase to merge local git commits before dcommit to svn
+
+=head1 SYNOPSIS
+
+gitsvnsquash [--help] [<options>]
+
+=head1 DESCRIPTION
+
+In order to maintain atomicity when dcommit'ing a change from the local git repo
+to the svn repository, any individual commits have to be merged into a single commit.
+
+To facilitate this, this script will look up the number of unstaged commits and
+run git rebase to provide the option of squashing all the commits into one.
+
+Basically, run this and then change 'pick' in the first column of all the unstaged
+commits to 's' for squash.  Example.  Change:
+
+   pick 30dbd87 modified:   lz_prologue
+   pick 9d94f89 modified:   lz_prologue
+
+to:
+
+   pick 30dbd87 modified:   lz_prologue
+   s 9d94f89 modified:   lz_prologue
+
+Then exit the editor.  This will invoke a new edit command, and give you a chance
+to adjust the new combined commit message.
+
+=head1 SUPPORTED PLATFORMS
+
+ Unix (Linux verified)
+
+=head1 SUPPORT
+
+ Send email to peeter.joot@lzlabs.com
+
+=head1 AUTHORS
+
+ Peeter Joot
+
+=cut
+
+#-----------------------------------------------------------------------------
+
+use strict ;
+use warnings ;
+use Getopt::Long ;
+use Pod::Usage ;
+
+# Suppress sourcing of users' .bashrc files in invoked shells
+delete $ENV{'ENV'} ;
+delete $ENV{'BASH_ENV'} ;
+
+# Set STDOUT and STDERR to unbuffered
+select STDERR ; $| = 1;
+select STDOUT ; $| = 1;
+
+my ($myName,$usage) = '' ;
+
+($myName = $0) =~ s@.*[/\\]@@ ;
+
+GetOptions ( 
+   'help'               => sub { pod2usage(-verbose => 2) ; },
+) or pod2usage(-verbose => 0) ;
+
+# http://stackoverflow.com/questions/16921873/git-svn-determine-number-of-commits-ahead-or-behind
+my $n = `git svn dcommit --dry-run | grep diff-tree | wc -l` ; chomp $n ;
+
+system( "git rebase -i HEAD~$n" ) ;

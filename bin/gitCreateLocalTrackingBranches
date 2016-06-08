@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# create local tracking branches for all remote branches:
+# http://stackoverflow.com/questions/67699/clone-all-remote-branches-with-git
+
+# modified to do this only for new branches:
+git branch | sed 's/.* //' | sed 's/.*/\\<&\\>/' > /tmp/branches.$$
+for branch in $(git branch --all | grep '^\s*remotes' | egrep --invert-match '(:?HEAD|master)$' | grep -vf /tmp/branches.$$); do
+    echo git branch --track "${branch##*/}" "$branch" | grep -ve '->$' -e HEAD
+done
+#/tmp/branches.$$
+rm /tmp/branches.$$
+
+echo git fetch --all
+echo git pull --all

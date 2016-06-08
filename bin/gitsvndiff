@@ -1,0 +1,106 @@
+#!/usr/bin/perl
+
+#-----------------------------------------------------------------------------
+# POD Format Documentation.  Read "perldoc perlpod" for an example.
+# When done, check syntax with "podchecker".
+
+=head1 NAME
+
+gitsvndiff - Perform a diff of what's commited relative to the base.
+
+=head1 SYNOPSIS
+
+gitsvndiff [--help] [--verbose] [--split] [-w]
+
+=head1 DESCRIPTION
+
+Grab the commit identifiers for the base and the current commit, and run those through
+git diff.
+
+=over 4
+
+=item --split
+
+show the diffs of all commits separately.
+
+The default behaviour is to combine the diffs of all commits into one.
+
+=item -w
+
+passed to diff
+
+=back
+
+=head1 SUPPORTED PLATFORMS
+
+ Unix (Linux verified)
+
+=head1 SUPPORT
+
+ Send email to peeter.joot@lzlabs.com
+
+=head1 AUTHORS
+
+ Peeter Joot
+
+=cut
+
+#-----------------------------------------------------------------------------
+
+use strict ;
+use warnings ;
+use Getopt::Long ;
+use Pod::Usage ;
+
+# Suppress sourcing of users' .bashrc files in invoked shells
+delete $ENV{'ENV'} ;
+delete $ENV{'BASH_ENV'} ;
+
+# Set STDOUT and STDERR to unbuffered
+select STDERR ; $| = 1;
+select STDOUT ; $| = 1;
+
+my ($myName,$usage) = '' ;
+my $verbose = 0 ;
+my $split = 0 ;
+my $flags = '' ;
+
+($myName = $0) =~ s@.*[/\\]@@ ;
+
+GetOptions ( 
+   'split!'             => \$split,
+   'verbose!'           => \$verbose,
+   'w!'                 => sub { $flags .= '-w' ; },
+   'help'               => sub { pod2usage(-verbose => 2) ; },
+) or pod2usage(-verbose => 0) ;
+
+# FIXME: this appears to fail if there are uncommitted updates in the tree.  Detect that and
+# give a better diagnostic:
+my $dcmd = "git svn dcommit --dry-run | grep diff-tree | sed 's/^diff-tree //'" ;
+
+print "# $dcmd\n" if ( $verbose ) ;
+my @dc = `$dcmd` ; chomp @dc ;
+
+if ( $split )
+{
+   foreach ( @dc )
+   {
+      my $cmd = "git diff $_" ;
+
+      print "# $cmd\n" if ( $verbose ) ;
+      system( $cmd ) ;
+   }
+}
+elsif ( scalar(@dc) )
+{
+   my $old = $dc[0] ;
+   $old =~ s/ .*// ;
+
+   my $new = $dc[-1] ;
+   $new =~ s/.* // ;
+
+   my $cmd = "git diff $flags $old $new" ;
+
+   print "# $cmd\n" if ( $verbose ) ;
+   system( $cmd ) ;
+}

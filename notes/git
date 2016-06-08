@@ -1,0 +1,77 @@
+git diff master
+
+   << compare all branched files to the master
+
+git diff branchname
+
+   << compare master files to those in a branch
+
+git checkout branchname filename(s)
+
+   << selective merge from a branch:
+
+git diff master branchame -- filename 
+
+   << compare the master version of 'filename' to that of branch 'branchname'
+
+git diff HEAD^ HEAD
+
+   << compare stuff from before the last commit
+
+git diff HEAD~2 HEAD~1
+
+   << compare stuff from second last commit
+
+git checkout master
+git merge branchname
+
+   merge branchname into master
+
+git checkout branchname
+git rebase master
+
+   rebase branchname (forked from master)
+
+git rebase -i HEAD~3
+   edit the commit messages for the last three commits.  Want to do this for 'git svn --interactive dcommit'
+   if multiple commits were uses.  git-svn + lzlabs hooks require the Jira issue to be in the commit message for
+   all commits that are applied.
+
+   See:
+
+      http://stackoverflow.com/a/25178676/189270
+
+   for additional instructions.  short answer is change 'pick's to 'r' and edit editor, which will bring up the editor
+   for all the previous selected commits.
+
+   Update: looks like squash is what is desired for all but the last commit, and that last commit must have the 
+      JIRA issue ID.
+
+   Created: gitsvnsquash to do this process.
+
+git merge-base Werror master
+
+   base for the branch Werror relative to master
+
+git svn show-ignore >> .git/info/exclude 
+
+   ignore all the same things that svn ignores.
+
+for i in `cat ../branches/Werror/l` ; do echo $i `git log -n 3 $i | grep Author | sed 's/Author: //;s/ .*//'` ; done 
+
+   look for the who is changing things.
+   However, this doesn't work well from a git svn repo that doesn't have enough history for the file.
+
+
+from the clang svn page:
+
+   The git-svn metadata can get out of sync after you mess around with branches and dcommit. When that happens, git svn dcommit stops working, complaining about files with uncommitted changes. The fix is to rebuild the metadata:
+
+   % rm -rf .git/svn
+   % git svn rebase -l
+
+
+git config --global merge.conflictstyle diff3
+
+   use diff3 conflicts by default.  This doesn't appear to be the case with git-svn ... or is it just because this is an old git
+   installation?
