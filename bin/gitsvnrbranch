@@ -62,7 +62,7 @@ my $rev ;
 ($myName = $0) =~ s@.*[/\\]@@ ;
 
 GetOptions ( 
-   'r=d'                => \$rev,
+   'r=i'                => \$rev,
    'help'               => sub { pod2usage(-verbose => 2) ; },
 ) or pod2usage(-verbose => 0) ;
 
@@ -70,7 +70,7 @@ GetOptions (
 
 die "$myName: required param '-rev nnnnn' was not specified" unless ( defined $rev ) ;
 
-c=`git svn find-rev r$r` ; chomp $c ;
+my $c = `git svn find-rev r$rev` ; chomp $c ;
 
 print "git checkout $c\n" .
-      "git checkout -b r$r\n" ;
+      "git checkout -b r$rev\n" ;
