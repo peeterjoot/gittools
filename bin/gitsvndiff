@@ -74,8 +74,12 @@ GetOptions (
    'help'               => sub { pod2usage(-verbose => 2) ; },
 ) or pod2usage(-verbose => 0) ;
 
-# FIXME: this appears to fail if there are uncommitted updates in the tree.  Detect that and
-# give a better diagnostic:
+my $check = `git svn dcommit --dry-run 2>&1` ; chomp $check ;
+if ( $? >> 8 )
+{
+   die "$myName: found uncommitted changes in build tree.  Commit first and run again.\n" ;
+}
+
 my $dcmd = "git svn dcommit --dry-run | grep diff-tree | sed 's/^diff-tree //'" ;
 
 print "# $dcmd\n" if ( $verbose ) ;
