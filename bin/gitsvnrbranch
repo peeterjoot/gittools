@@ -72,5 +72,5 @@ die "$myName: required param '-rev nnnnn' was not specified" unless ( defined $r
 
 my $c = `git svn find-rev r$rev` ; chomp $c ;
 
-print "git checkout $c\n" .
-      "git checkout -b r$rev\n" ;
+system( "git checkout $c\n" .
+        "git checkout -b r$rev\n" ) ;
