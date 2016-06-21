@@ -1,0 +1,92 @@
+#!/bin/bash
+
+: <<=cut
+#-----------------------------------------------------------------------------
+# POD like Format Documentation.  Invoke perldoc ./thisfile to see the documentation.
+# See "perldoc perlpod" for examples.
+# When done, check syntax with "podchecker".  
+
+=head1 NAME
+
+git_bashrc - some git and git-svn related aliases
+
+=head1 SYNOPSIS
+
+git_bashrc [<options>]
+
+=head1 DESCRIPTION
+
+Some git and git-svn related aliases
+
+Methods:
+
+=over 4
+
+=item gitsvnpull
+
+git-svn equivalent of git pull ('svn update')
+
+=item gitsvnpush
+
+git-svn equivalent of git push
+
+=item gitsvnrev
+
+grab the svn revision from 'git svn info'
+
+=item gitsvnignore
+
+Update git-svn directory with svn ignored files.
+
+=back 
+
+=head1 SUPPORTED PLATFORMS
+
+ Unix (Linux verified)
+
+=head1 SUPPORT
+
+ Send email to peeter.joot@lzlabs.com
+
+=head1 AUTHORS
+
+ Peeter Joot
+
+=cut
+
+#-----------------------------------------------------------------------------
+
+
+
+
+# this is the equivalent of an "svn update" 
+alias gitsvnpull='git svn rebase'
+        
+#(when all is correct...)
+alias gitsvnpush='git svn --interactive dcommit'
+#     <-- pushes any new commit(s) back to SVN
+#
+alias gitsvnrev='git svn info | grep ^Rev | sed "s/.* //;"'
+
+# current git branch.  FIXME: This only works if a file has been committed, and doesn't show the branch that
+# is active according to 'git branch'
+alias gitbranch='git name-rev --name-only HEAD'
+
+
+#(amend some modules)
+#git add .             < -- this will add all updated modules to the forthcoming commit 
+        
+#git commit
+#(at this stage you can still correct mistakes)
+#git add lz_lce/src/lcevsam.c      <-- adds corrected modules into the commit
+#        
+#git commit --amend    < -- incorporates the corrections into the previous commit 
+#        
+
+alias gitsvnignore='git svn show-ignore >> .git/info/exclude'
+
+alias tclogin="java -jar ~/tcc.jar login --host http://teamcity.lzlabs.com:8111 --user $USER"
+alias tcglogin="java -jar ~/freeware/teamcity-git-svn/tcc.jar login --host http://teamcity.lzlabs.com:8111 --user $USER"
+alias tclogout="java -jar ~/tcc.jar logout --host http://teamcity.lzlabs.com:8111"
+alias tcinfo="java -jar ~/tcc.jar info --host http://teamcity.lzlabs.com:8111 -p"
+
