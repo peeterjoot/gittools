@@ -10,7 +10,7 @@ gitsvnrbranch - check out a specific commit
 
 =head1 SYNOPSIS
 
-gitsvnrbranch [--help] [<options>]
+gitsvnrbranch [--help] -r rev [--no-branch]
 
 =head1 DESCRIPTION
 
@@ -24,6 +24,10 @@ Options:
 =item -r nnnnn
 
 SVN revision number.
+
+=item --no-branch
+
+don't create a branch
 
 =back 
 
@@ -58,10 +62,12 @@ select STDOUT ; $| = 1 ;
 
 my ($myName,$usage) = '' ;
 my $rev ;
+my $branch = 1 ;
 
 ($myName = $0) =~ s@.*[/\\]@@ ;
 
 GetOptions ( 
+   'branch!'            => \$branch,
    'r=i'                => \$rev,
    'help'               => sub { pod2usage(-verbose => 2) ; },
 ) or pod2usage(-verbose => 0) ;
@@ -72,5 +78,10 @@ die "$myName: required param '-rev nnnnn' was not specified" unless ( defined $r
 
 my $c = `git svn find-rev r$rev` ; chomp $c ;
 
-system( "git checkout $c\n" .
-        "git checkout -b r$rev\n" ) ;
+my $cmd = "git checkout $c\n" ;
+if ( $branch )
+{
+   $cmd .= "git checkout -b r$rev\n" ;
+}
+
+system( $cmd ) ;
