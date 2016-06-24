@@ -1,0 +1,96 @@
+#!/usr/bin/perl
+
+#-----------------------------------------------------------------------------
+# POD Format Documentation.  Read "perldoc perlpod" for an example.
+# When done, check syntax with "podchecker".
+
+=head1 NAME
+
+gitrev - obtain the svn revision in a git-svn repo or the git commit hash.
+
+=head1 SYNOPSIS
+
+gitrev [--help]
+
+=head1 DESCRIPTION
+
+For use in a git-svn repo or a git repo, obtain either the svn commit or the git
+commit hash.
+
+Options:
+
+=head1 SUPPORTED PLATFORMS
+
+ Unix (Linux verified)
+
+=head1 SUPPORT
+
+ Send email to peeter.joot@lzlabs.com
+
+=head1 AUTHORS
+
+ Peeter Joot
+
+=cut
+
+#-----------------------------------------------------------------------------
+
+use strict ;
+use warnings ;
+use Getopt::Long ;
+use Pod::Usage ;
+
+# Suppress sourcing of users' .bashrc files in invoked shells
+delete $ENV{'ENV'} ;
+delete $ENV{'BASH_ENV'} ;
+
+# Set STDOUT and STDERR to unbuffered
+select STDERR ; $| = 1 ;
+select STDOUT ; $| = 1 ;
+
+my ($myName,$usage) = '' ;
+my $debug = 0 ;
+
+($myName = $0) =~ s@.*[/\\]@@ ;
+
+GetOptions ( 
+   'debug!'             => \$debug,
+   'help'               => sub { pod2usage(-verbose => 2) ; },
+) or pod2usage(-verbose => 0) ;
+
+# Validate/handle options, and everything else...
+
+my $rc = my_system( "git svn info >/dev/null 2>&1" ) ;
+if ( $rc )
+{
+   my_system( "git rev-parse --short HEAD" ) ;
+}
+else
+{
+   my_system( qq(git svn info 2>/dev/null | grep ^Rev | sed "s/.* //;") ) ;
+}
+
+exit 0 ;
+
+sub my_bq
+{
+   my ($cmd) = @_ ;
+
+   my $out = `$cmd` ;
+   my $rc = ( $? >> 8 ) ;
+   chomp $out ;
+   print "# $cmd: $out\n" if ( $debug ) ;
+
+   #return ($out, $rc) ;
+   return $out ;
+}
+
+sub my_system
+{
+   my ($cmd) = @_ ;
+ 
+   print "# $cmd\n" if ( $debug ) ; 
+   system( $cmd ) ; 
+
+   return ( $? >> 8 ) ;
+}
