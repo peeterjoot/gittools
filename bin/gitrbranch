@@ -6,16 +6,18 @@
 
 =head1 NAME
 
-gitsvnrbranch - check out a specific commit
+gitrbranch - check out a specific commit
 
 =head1 SYNOPSIS
 
-gitsvnrbranch [--help] -r rev [--no-branch]
+gitrbranch [--help] -r rev [--no-branch] [--name branchname]
 
 =head1 DESCRIPTION
 
-This can be used to check out a known good commit and work from that until ready to dcommit.
-Alternatively, this can be used to check out a specific commit for debug purposes.
+This script can be used in git or git-svn repos, and can be used to 
+check out a known good commit and work from that until ready to dcommit/push.
+
+Alternatively, this can be used to check out a specific (bad) commit for debug purposes.
 
 Options:
 
@@ -23,11 +25,15 @@ Options:
 
 =item -r nnnnn
 
-SVN revision number.
+A subversion revision number or git commit hash.
 
 =item --no-branch
 
 don't create a branch
+
+=item --name branchname
+
+What to call the branch.
 
 =back 
 
@@ -63,12 +69,13 @@ select STDOUT ; $| = 1 ;
 my ($myName,$usage) = '' ;
 my $rev ;
 my $branch = 1 ;
+my $name ;
 
 ($myName = $0) =~ s@.*[/\\]@@ ;
 
 GetOptions ( 
    'branch!'            => \$branch,
-   'r=i'                => \$rev,
+   'r=s'                => \$rev,
    'help'               => sub { pod2usage(-verbose => 2) ; },
 ) or pod2usage(-verbose => 0) ;
 
@@ -76,12 +83,52 @@ GetOptions (
 
 die "$myName: required param '-rev nnnnn' was not specified" unless ( defined $rev ) ;
 
-my $c = `git svn find-rev r$rev` ; chomp $c ;
+my $c ;
+my $rc = verbose_system( 'git svn info >/dev/null 2>&1' ) ;
+if ( $rc )
+{
+   $c = $rev ;
+}
+else
+{
+   $c = verbose_bq( "git svn find-rev r$rev" ) ;
+}
+
+if ( $c eq $rev )
+{
+   $rev = verbose_bq( "git rev-parse --short HEAD" ) ;
+}
+
+unless ( defined $name )
+{
+   $name = "r$rev" ;
+}
 
 my $cmd = "git checkout $c\n" ;
 if ( $branch )
 {
-   $cmd .= "git checkout -b r$rev\n" ;
+   $cmd .= "git checkout -b $name\n" ;
+}
+verbose_system( $cmd ) ;
+
+exit 0 ;
+
+sub verbose_bq
+{
+   my ($cmd) = @_ ;
+
+   my $out = `$cmd` ; chomp $out ;
+   print "# $cmd: $out\n" ;
+
+   return $out ;
 }
 
-system( $cmd ) ;
+sub verbose_system
+{
+   my ($cmd) = @_ ;
+ 
+   print "# $cmd\n" ; 
+   system( $cmd ) ; 
+
+   return ( $? >> 8 ) ;
+}
