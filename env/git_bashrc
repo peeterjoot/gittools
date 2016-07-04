@@ -90,3 +90,4 @@ alias tcglogin="java -jar ~/freeware/teamcity-git-svn/tcc.jar login --host http:
 alias tclogout="java -jar ~/tcc.jar logout --host http://teamcity.lzlabs.com:8111"
 alias tcinfo="java -jar ~/tcc.jar info --host http://teamcity.lzlabs.com:8111 -p"
 
+alias gitconflicts="git status | grep both | sed 's/.* //'"
