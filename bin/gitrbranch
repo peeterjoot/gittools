@@ -74,6 +74,7 @@ my $name ;
 ($myName = $0) =~ s@.*[/\\]@@ ;
 
 GetOptions ( 
+   'name=s'             => \$name,
    'branch!'            => \$branch,
    'r=s'                => \$rev,
    'help'               => sub { pod2usage(-verbose => 2) ; },

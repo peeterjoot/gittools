@@ -12,3 +12,12 @@ svn log -v -r 30391
 for i in `cat ../branches/Werror/l` ; do pw=`~/.svnpw` ; echo `svncountfile --pas $pw -f $i` $i ; done
 
    look for code owners.
+
+
+checkout (or revert to) specific version:
+
+   svn update --revision 30635
+
+merging (local) branch to new version of trunk:
+
+   svn merge --accept postpone ^/rc/trunk 
