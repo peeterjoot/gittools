@@ -21,3 +21,26 @@ checkout (or revert to) specific version:
 merging (local) branch to new version of trunk:
 
    svn merge --accept postpone ^/rc/trunk 
+
+(interactively in an editor) change svn:ignore properties in a directory:
+
+   svn propedit svn:ignore lz_lck/lz_mutex 
+
+See if the svn:ignore property is set in a directory:
+
+   svn propget svn:ignore lz_lck/lz_mutex
+
+Set the svn:ignore property for a set of directories
+
+   cat > p << EOF
+bin
+lib
+obj
+lst
+rtf
+html
+EOF
+   for i in lz_rdb/lz_pgmod/test/skip lz_rdb/lz_pgmod/test/scan ; do
+      svn propset svn:ignore "`cat p`" $i
+   done
+

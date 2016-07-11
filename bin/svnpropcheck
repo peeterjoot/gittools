@@ -1,0 +1,92 @@
+#!/usr/bin/perl
+
+#-----------------------------------------------------------------------------
+# POD Format Documentation.  Read "perldoc perlpod" for an example.
+# When done, check syntax with "podchecker".
+
+=head1 NAME
+
+svnpropcheck - check for desired svn:ignore properties
+
+=head1 SYNOPSIS
+
+svnpropcheck [--help] --dir dirname
+
+=head1 DESCRIPTION
+
+You want to define an ignore rule in svn for each project for certain automatically built subdirectories (e.g., lz_lck/lz_mutex/test/{bin, lst, obj}, lz_lck/lz_namedlock/test/{bin, lst, obj}, lz_lck/lz_shared_mutex/test/{bin, lst, obj), ...), otherwise they will be checked into the main source hierarchy.  The automatically built subdirectories are:
+
+bin
+html
+lib
+lst
+obj
+rtf
+
+Options:
+
+=over 4
+
+=item --dir=bar
+
+Direectory to look for svn:ignore property.
+
+=back 
+
+=head1 SUPPORTED PLATFORMS
+
+ Unix (Linux verified)
+
+=head1 SUPPORT
+
+ Send email to peeter.joot@lzlabs.com
+
+=head1 AUTHORS
+
+ Peeter Joot
+
+=cut
+
+#-----------------------------------------------------------------------------
+
+use strict ;
+use warnings ;
+use Getopt::Long ;
+use Pod::Usage ;
+
+# Suppress sourcing of users' .bashrc files in invoked shells
+delete $ENV{'ENV'} ;
+delete $ENV{'BASH_ENV'} ;
+
+# Set STDOUT and STDERR to unbuffered
+select STDERR ; $| = 1 ;
+select STDOUT ; $| = 1 ;
+
+my ($myName,$usage) = '' ;
+
+($myName = $0) =~ s@.*[/\\]@@ ;
+my @directories ;
+
+GetOptions ( 
+   'dir=s'              => \@directories,
+   'help'               => sub { pod2usage(-verbose => 2) ; },
+) or pod2usage(-verbose => 0) ;
+
+# Validate/handle options, and everything else...
+
+foreach my $dir ( @directories ) 
+{
+   my @p = `svn propget svn:ignore $dir` ; chomp @p ;
+
+   my %props = map {$_ => 1} @p ;
+
+   if ( ((defined $props{'bin'}) + (defined $props{'obj'}) + (defined $props{'lib'}) + (defined $props{'lst'}) ) >= 3 )
+   {
+      print "okay: $dir: @p\n" ;
+      next ;
+   }
+   else
+   {
+      print "fail $dir: @p\n" ;
+   }
+}
