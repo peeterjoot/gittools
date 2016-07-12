@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cat > p$$ << EOF
+bin
+lib
+obj
+lst
+rtf
+html
+EOF
+for i in ${*?} ; do
+   svn propset svn:ignore "`cat p$$`" $i
+done
