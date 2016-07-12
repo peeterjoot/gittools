@@ -9,6 +9,6 @@ rtf
 html
 EOF
 for i in ${*?} ; do 
-   echo git svn propset svn:ignore "`cat p$$`" $i
+   git svn propset svn:ignore "`cat p$$`" $i
 done
 rm -f p$$
