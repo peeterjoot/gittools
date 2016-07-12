@@ -1,0 +1,5 @@
+git clone https://github.com/git/git
+autoconf
+./configure --prefix=/usr/local/git-trunk
+make -j 4
+sudo make install
