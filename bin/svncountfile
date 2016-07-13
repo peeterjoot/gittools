@@ -45,7 +45,7 @@ delete $ENV{'BASH_ENV'} ;
 select STDERR ; $| = 1 ;
 select STDOUT ; $| = 1 ;
 
-my ($myName,$usage) = '' ;
+my $myName = '' ;
 my $filename ;
 my $number = 5 ;
 my $password ;

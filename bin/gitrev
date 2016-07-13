@@ -48,7 +48,7 @@ delete $ENV{'BASH_ENV'} ;
 select STDERR ; $| = 1 ;
 select STDOUT ; $| = 1 ;
 
-my ($myName,$usage) = '' ;
+my $myName = '' ;
 my $debug = 0 ;
 
 ($myName = $0) =~ s@.*[/\\]@@ ;
