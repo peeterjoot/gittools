@@ -48,7 +48,7 @@ select STDOUT ; $| = 1 ;
 my $myName = '' ;
 my $filename ;
 my $number = 5 ;
-my $password ;
+my $password = '' ;
 my $debug = 0 ;
 my $all = 0 ;
 
@@ -65,7 +65,7 @@ GetOptions (
 
 die "$myName: -filename not specified\n" unless ( defined $filename ) ;
 
-if ( defined $password )
+if ( $password ne '' )
 {
    $password = " --password=$password " ;
 }
